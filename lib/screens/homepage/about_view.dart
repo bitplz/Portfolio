@@ -2,13 +2,17 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/common_widgets.dart';
-import '../../utils/common_strings.dart';
+import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
+import 'package:get/get.dart';
 
 class AboutView extends StatelessWidget {
   const AboutView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Ensure portfolio controller is initialized so data is available
+    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
+
     return ResponsiveLayout(
       mobileView: _buildMobileLayout(context),
       desktopView: _buildDesktopLayout(context),
@@ -38,9 +42,20 @@ class AboutView extends StatelessWidget {
   }
 
   Widget _buildAboutSection(BuildContext context, {required double horizontalPadding}) {
+    final controller = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
     return Container(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
-      child: buildAboutMeRichText(context),
+      child: Obx(() {
+        final about = controller.personalDetails.value.aboutMe;
+        if (about.isEmpty) {
+          // Fallback to legacy hardcoded text
+          return buildAboutMeRichText(context);
+        }
+        return Text(
+          about,
+          style: Theme.of(context).textTheme.bodyLarge,
+        );
+      }),
     );
   }
 

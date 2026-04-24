@@ -3,6 +3,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:portfolio/main.dart';
 import 'package:portfolio/screens/homepage/home_controller.dart';
+import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
 import 'package:portfolio/utils/common_strings.dart';
@@ -15,6 +16,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final homeController = Get.put(HomeController(), tag: 'home_controller');
+    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
     final maxWidth = MediaQuery.of(context).size.width;
     final double padding =
         (maxWidth > 1200) ? (maxWidth - 1200) / 2 : 10;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
 import 'package:portfolio/utils/common_strings.dart';
@@ -13,6 +14,9 @@ class PortfolioView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure portfolio controller is initialized
+    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
+
     return ResponsiveLayout(
       mobileView: _buildMobileLayout(context),
       desktopView: _buildDesktopLayout(context),
@@ -23,13 +27,19 @@ class PortfolioView extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-      child: Wrap(
-        spacing: 20,
-        runSpacing: 30,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        runAlignment: WrapAlignment.center,
-        alignment: WrapAlignment.center,
-        children: _buildPortfolioCards(context),
+      child: GetX<PortfolioDataController>(
+        tag: 'portfolio_data_controller',
+        builder: (controller) {
+          final children = _buildPortfolioCards(context);
+          return Wrap(
+            spacing: 20,
+            runSpacing: 30,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runAlignment: WrapAlignment.center,
+            alignment: WrapAlignment.center,
+            children: children,
+          );
+        },
       ),
     );
   }
@@ -38,29 +48,47 @@ class PortfolioView extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-      child: Wrap(
-        spacing: 20,
-        runSpacing: 20,
-        crossAxisAlignment: WrapCrossAlignment.start,
-        runAlignment: WrapAlignment.start,
-        children: _buildPortfolioCards(context),
+      child: GetX<PortfolioDataController>(
+        tag: 'portfolio_data_controller',
+        builder: (controller) {
+          final children = _buildPortfolioCards(context);
+          return Wrap(
+            spacing: 20,
+            runSpacing: 20,
+            crossAxisAlignment: WrapCrossAlignment.start,
+            runAlignment: WrapAlignment.start,
+            children: children,
+          );
+        },
       ),
     );
   }
 
   List<Widget> _buildPortfolioCards(BuildContext context) {
-    final portfolios = [
-      CommonStrings.remoteCursorPackage,
-      CommonStrings.portfolioApp,
-      CommonStrings.workAnywhereApp,
-      CommonStrings.talentAnywhereApp,
-      CommonStrings.darknetDiariesApp,
-      CommonStrings.neoMartApp,
-      CommonStrings.libriVoxApp,
-    ];
-
-    return portfolios
-        .map((portfolio) => _PortfolioCard(portfolioInfo: portfolio))
+    final controller = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
+    final projects = controller.projectList.value;
+    if (projects.isEmpty) {
+      // Fallback to legacy list
+      final portfolios = [
+        CommonStrings.remoteCursorPackage,
+        CommonStrings.portfolioApp,
+        CommonStrings.workAnywhereApp,
+        CommonStrings.talentAnywhereApp,
+        CommonStrings.darknetDiariesApp,
+        CommonStrings.neoMartApp,
+        CommonStrings.libriVoxApp,
+      ];
+      return portfolios.map((p) => _PortfolioCard(portfolioInfo: p)).toList();
+    }
+    return projects
+        .map((proj) => _PortfolioCard(portfolioInfo: {
+              'title': proj.title,
+              'type': proj.type,
+              'coverImage': proj.coverImage,
+              'iconUrl': proj.iconUrl,
+              'playstoreUrl': proj.playstoreUrl,
+              'about': proj.about,
+            }))
         .toList();
   }
 }

@@ -8,6 +8,8 @@ import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
 import 'package:portfolio/utils/common_widgets.dart';
 import 'package:portfolio/screens/homepage/home_controller.dart';
+import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
+import 'package:get/get.dart';
 
 class ContactView extends StatelessWidget {
   const ContactView({super.key});
@@ -98,6 +100,10 @@ class _ContactFormSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure portfolio controller is available for contact details
+    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
+    final portfolioController = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -106,7 +112,22 @@ class _ContactFormSection extends StatelessWidget {
           "Contact Form",
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
+        Obx(() {
+          final details = portfolioController.personalDetails.value;
+          if (details.email.isEmpty && details.mobile.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Email: ${details.email}', style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 4),
+              Text('Phone: ${details.mobile}', style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 12),
+            ],
+          );
+        }),
         _ContactForm(controller: controller, isMobile: isMobile),
       ],
     );

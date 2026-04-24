@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
 import 'package:portfolio/utils/common_strings.dart';
+import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
+import 'package:get/get.dart';
 import 'package:portfolio/utils/common_widgets.dart';
 
 class ResumeView extends StatelessWidget {
@@ -11,6 +13,9 @@ class ResumeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure portfolio controller is available
+    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
+
     return ResponsiveLayout(
       mobileView: _buildMobileLayout(context),
       desktopView: _buildDesktopLayout(context),
@@ -25,16 +30,38 @@ class ResumeView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader(context, "Education", Icons.school_outlined),
-          TimeLineListView(
-            title: "Education",
-            data: CommonStrings.educationMap.reversed.toList(),
-          ),
+          Obx(() {
+            final controller = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
+            final data = controller.educationList.value
+                .map((e) => {
+                      'title': e.title,
+                      'time': e.time,
+                      'desc': e.desc,
+                    })
+                .toList()
+                .reversed
+                .toList();
+            if (data.isEmpty) {
+              return TimeLineListView(title: 'Education', data: CommonStrings.educationMap.reversed.toList());
+            }
+            return TimeLineListView(title: 'Education', data: data);
+          }),
           const SizedBox(height: 20),
           _buildSectionHeader(context, "Experience", Icons.school_outlined),
-          TimeLineListView(
-            title: "Experience",
-            data: CommonStrings.experienceMap,
-          ),
+          Obx(() {
+            final controller = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
+            final data = controller.experienceList.value
+                .map((e) => {
+                      'title': e.title,
+                      'time': e.time,
+                      'desc': e.desc,
+                    })
+                .toList();
+            if (data.isEmpty) {
+              return TimeLineListView(title: 'Experience', data: CommonStrings.experienceMap);
+            }
+            return TimeLineListView(title: 'Experience', data: data);
+          }),
           const SizedBox(height: 40),
           _buildSkillsSection(context),
         ],

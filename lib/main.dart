@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:portfolio/firebase_options.dart';
 import 'package:portfolio/screens/homepage/home_view.dart';
 import 'package:portfolio/services/analytics_services.dart';
@@ -12,6 +13,16 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization error: $e');
+  }
+
   // Get.put(AnalyticServices(), tag: 'analytics');
   await dotenv.load(fileName: Environment.envFile);
   // analyticServices.logEvent(eventName: "App initialized");
