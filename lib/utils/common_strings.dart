@@ -27,15 +27,29 @@ class CommonStrings {
 
   static const experienceMap = [
     {
+      'title': 'AWC Software, Gurugram',
+      'time': 'July 2025 - Present',
+      'desc':
+      'Building a cross-platform mobile and web app from scratch using a single shared codebase. '
+          'Implemented role-based access control, multi-theme support, and localisation '
+          'for multiple regional markets.'
+    },
+    {
       'title': 'Shephertz Technologies, Gurugram',
       'time': 'April 2023 - March 2025',
-      'desc': 'Developed mobile applications using Flutter, implemented AI-driven features, and optimized performance through code refactoring.'
+      'desc':
+      'Built an HRMS app with live GPS tracking, face recognition login, and Firebase integration, '
+          'reducing redundant code by 15%. Developed an AI-powered job portal with push notifications, '
+          'deep linking, and Google Sign-In using GetX state management.'
     },
     {
       'title': 'The Phantom Codes Pvt. Ltd., Gurugram',
-      'time': 'Jan 2020 - Mar 2023',
-      'desc': 'Built and published mobile applications using React Native, integrated payment gateways, and improved app performance through optimization.'
-    }
+      'time': 'January 2020 - March 2023',
+      'desc':
+      'Delivered 8+ Android and iOS apps across fintech, media, and lifestyle categories. '
+          'Integrated Stripe, Razorpay, and Paytm payment gateways, and built real-time chat '
+          'with offline support using WebSockets and Firebase Realtime Database.'
+    },
   ];
 
   static const Map<String, String> darknetDiariesApp = {

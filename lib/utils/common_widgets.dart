@@ -201,14 +201,14 @@ class TimeLineListView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText(data[index - 1]['title']!, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    Text(data[index - 1]['title']!, style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppColors.white,
                     ),),
                     const SizedBox(height: 8,),
-                    SelectableText(data[index - 1]['time']!, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    Text(data[index - 1]['time']!, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.selectionColor
                     ),),
-                    SelectableText(data[index - 1]['desc']!, style: Theme.of(context).textTheme.bodyLarge),
+                    Text(data[index - 1]['desc']!, style: Theme.of(context).textTheme.bodyLarge),
                   ],
                 ),
               )
@@ -248,14 +248,14 @@ class TimeLineListView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText(data[index - 1]['title']!, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    Text(data[index - 1]['title']!, style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppColors.white,
                     ),),
                     const SizedBox(height: 8,),
-                    SelectableText(data[index - 1]['time']!, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    Text(data[index - 1]['time']!, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.selectionColor
                     ),),
-                    SelectableText(data[index - 1]['desc']!, style: Theme.of(context).textTheme.bodyLarge),
+                    Text(data[index - 1]['desc']!, style: Theme.of(context).textTheme.bodyLarge),
                   ],
                 ),
               )

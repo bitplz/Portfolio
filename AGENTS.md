@@ -1,0 +1,141 @@
+# AGENTS.md - AI Development Guide
+
+## Project Overview
+This is a **Flutter portfolio application** showcasing personal projects and professional journey. It's deployed to web (Vercel) and supports mobile/tablet/desktop via responsive design. Uses **GetX** for state management and routing, **EmailJS** for contact forms.
+
+## Environment Setup
+
+### Required Versions
+- **Dart SDK**: `>=3.4.0 <4.0.0` (currently 3.5.4)
+- **Flutter**: Latest stable
+- **Node.js**: For Vercel deployment
+
+### Key Dependency Versions
+- `flutter_lints: ^5.0.0` (compatible with Dart 3.4.0+)
+- `get: ^4.6.6` (state management)
+- `emailjs: ^4.0.0` (email service)
+- `flutter_neumorphic_plus: ^3.4.0` (UI styling)
+
+**Note**: Do not upgrade `flutter_lints` beyond 5.x as newer versions require Dart 3.8.0+. Use `flutter pub outdated` to check available updates before upgrading any dependencies.
+
+## Architecture & Key Components
+
+### 1. **State Management Pattern (GetX)**
+- **Controller**: `HomeController` (tag: `'home_controller'`) manages navigation, form state, and email sending
+  - Use `Get.put()` for initialization in `HomeView.build()`, access via `HomeController.instance` (static getter) or `Get.find<HomeController>(tag: 'home_controller')`
+  - Observable pattern: `RxInt selectedTabIndex`, `RxBool loading`, text controllers wrapped in `Rx<TextEditingController>`
+  - Tab switching via `onSelectTab()` returns corresponding View widget from switch statement (About/Resume/Portfolio/Contact)
+  - EmailJS initialization in `onInit()` with error handling; controllers properly disposed in `onClose()`
+- **Service**: `AnalyticServices` (commented out but structure shows Firebase analytics integration via `firebase_options.dart`)
+
+### 2. **Responsive Design Three-Tier System**
+- `ResponsiveLayout` widget wraps views with three builds: `mobileView`, `tabView` (optional, defaults to `mobileView`), `desktopView`; all wrapped in `SelectionArea` for text selection support
+- **Desktop** (maxWidth > 1200): Sidebar + main content in Row with flex 24:76 ratio; padding calculated as `(maxWidth - 1200) / 2`
+- **Mobile**: Vertical stack with scrollable content and fixed bottom tab bar
+- **Tablet**: Falls back to `tabView` parameter if provided, otherwise `mobileView`
+- Tab views (AboutView, ResumeView, etc.) follow pattern: `ResponsiveLayout` → `_buildMobileLayout()` and `_buildDesktopLayout()` private methods
+- Content padding extracted in each view: mobile/tablet use `horizontalPadding: 10`, desktop uses `horizontalPadding: 30`
+
+### 3. **View Structure (Single Page, Multi-Tab)**
+- `HomeView` is the only page; four tabs (`AboutView`, `ResumeView`, `PortfolioView`, `ContactView`) swap via `getTabView()`
+- Views decomposed into `_buildMobileLayout()` and `_buildDesktopLayout()` functions within each view file
+- Views access `HomeController` via `Get.find<HomeController>(tag: 'home_controller')`
+
+### 4. **UI Component Library**
+All custom widgets in `lib/utils/common_widgets.dart`:
+- **`CustomContainer`**: Animated border container with optional gradient background
+- **`AvatarContainer`**: Gradient-filled rounded container with shadow
+- **`TimeLineListView`**: Timeline component using `timeline_tile` package (used in Resume view)
+- **`TabItem`**: Custom tab button with selection highlight
+- **`downloadCVButton()`**: Neumorphic button launching CV URL via `url_launcher`
+- **`cardStyle()`**: Factory function returning `NeumorphicStyle` for 3D card effect
+
+### 5. **Email Integration (EmailJS)**
+- **Config**: `Environment.publicKey`, `Environment.privateKey`, `Environment.serviceId`, `Environment.templateId` from `.env` file
+- **Flow**: Form fields in `ContactView` → validate with `formKey` → call `HomeController.sendEmail()` → async emailjs.send() → clear form
+- **Error Handling**: `EmailJSResponseStatus` caught separately; `CommonMethods().showSuccessToast()` / `showDangerToast()` for UI feedback
+- **Rate Limiting**: `LimitRate(id: 'web-app', throttle: 10000)` prevents spam
+
+### 6. **Design System**
+- **Color Palette** (`lib/utils/app_colors.dart`): Dark mode with accent yellows
+  - Primary: `smokeyBlack` (#121212), `background` (#1E1E1F)
+  - Accent: `selectionColor` (#F7D96A), `accent` (#FFDB70)
+  - Containers: `lightBlackContainer` (#2B2B2C)
+  - Gradients: `linearGradient`, `tileLinearGradient`, `yellowGradient` pre-defined
+- **Typography**: Custom Poppins font family (weights: 300, 500, 600, 700, 900)
+- **Text Themes**: Separate `mobileTextTheme` and `deskTopTextTheme` (defined in `text_theme.dart`) applied per device
+
+### 7. **External Dependencies**
+- **Core**: `flutter` (SDK), `get: ^4.6.6` (state management), `flutter_dotenv: ^6.0.1` (environment variables)
+- **UI**: `flutter_neumorphic_plus: ^3.4.0`, `timeline_tile: ^2.0.0`, `flutter_svg: ^2.0.10+1`, `responsive_builder: ^0.7.1`
+- **Services**: `emailjs: ^4.0.0`, `url_launcher: ^6.3.0`, `flutter_map: ^8.3.0`, `latlong2: ^0.9.1`
+- **Feedback**: `fluttertoast: ^9.0.0`
+- **Dev**: `flutter_lints: ^5.0.0` (linting; version constraint tied to Dart SDK 3.5.4)
+
+## Developer Workflows
+
+### Build & Deploy
+- **Web**: `flutter build web` → outputs to `build/web/` → deployed via Vercel (see `vercel.json` for routing)
+- **Mobile**: Android via `android/build.gradle`, iOS via `ios/Runner.xcodeproj`
+- **Environment**: Create `.env` file (included in pubspec.yaml assets) with EmailJS keys
+
+### Testing & Analysis
+- Run lints: `flutter analyze` (uses `analysis_options.yaml` with flutter_lints ^5.0.0)
+- Widget tests: `test/widget_test.dart` exists but minimal; tests should follow Flutter conventions
+- Check outdated deps: `flutter pub outdated` (warns about newer versions; assess compatibility before upgrading)
+- **⚠️ Dependency Note**: `flutter_lints` is pinned to ^5.0.0 for Dart 3.5.4 compatibility; do not upgrade to 6.0.0+ without upgrading Dart SDK to 3.8.0+
+
+### Local Development
+- Verify Dart SDK: `dart --version` (should be 3.4.0 or later, ideally 3.5.4)
+- `flutter pub get` to fetch dependencies
+- `flutter pub outdated` to check for available updates—review compatibility before upgrading
+- Hot reload enabled; ensure `.env` file exists with valid EmailJS credentials
+- Responsive testing: Use Chrome DevTools device simulator or `flutter run -d chrome`
+
+## Project Conventions
+
+### File Organization
+- **`lib/screens/homepage/`**: All tab views + controller (single-page app)
+- **`lib/utils/`**: 
+  - Design tokens (`app_colors.dart`, `text_theme.dart`)
+  - UI widget library (`common_widgets.dart`)
+  - Content management (`common_strings.dart` - education, experience, project descriptions as const Maps)
+  - Utilities (`common_methods.dart`, `environment.dart`, `controllers.dart`)
+- **`lib/services/`**: External service integrations (e.g., `analytics_services.dart`)
+- **`assets/`**: Images, SVGs, and fonts (all referenced in `pubspec.yaml`)
+
+### Naming & Patterns
+- **Controllers**: Suffixed with `Controller`, tagged on initialization
+- **Views**: Suffixed with `View`, placed in feature folders
+- **Private widgets**: Prefixed with `_` (e.g., `_SideBar`, `_ContactMap`)
+- **Observables**: Wrapped in `Rx<T>` or use `.obs` suffix (e.g., `RxInt`, `Rx<TextEditingController>`)
+- **Form handling**: Use `GlobalKey<FormState>` for validation; stored in controller
+
+### Responsive Breakpoints
+- Mobile: `deviceScreenType == DeviceScreenType.mobile`
+- Tablet: `deviceScreenType == DeviceScreenType.tablet`
+- Desktop: `deviceScreenType == DeviceScreenType.desktop`
+- Max desktop width: 1200px (constrain content via padding)
+
+### URL Launching
+- Use `url_launcher` for external links (CV, social profiles)
+- Set `LaunchMode.platformDefault` for cross-platform compatibility
+
+## Critical Files to Understand
+1. **`lib/main.dart`**: App initialization, theme config, responsive text theme selection
+2. **`lib/screens/homepage/home_controller.dart`**: Tab switching logic, form state, EmailJS integration
+3. **`lib/screens/homepage/home_view.dart`**: Main layout logic (3 device types); delegates to tab views
+4. **`lib/utils/common_widgets.dart`**: Reusable UI components (CustomContainer, AvatarContainer, etc.)
+5. **`lib/screens/responsive_layout.dart`**: Wrapper for responsive builds
+6. **`pubspec.yaml`**: Dependencies, font assets, image assets
+
+## Common Tasks
+
+- **Add new tab**: Create view file in `lib/screens/homepage/`, add case to `HomeController.getTabView()` and `getTabName()`, implement with `ResponsiveLayout` wrapping `_buildMobileLayout()` and `_buildDesktopLayout()`
+- **Update content**: Modify const Maps in `lib/utils/common_strings.dart` (educationMap, experienceMap, or project descriptions); no rebuild needed due to const structure
+- **Add new page**: Consider architectural impact—this is single-page; extract multi-page nav to GetX navigation
+- **Style changes**: Modify `AppColors` and text themes centrally; use `CustomContainer` or `AvatarContainer` for UI
+- **External link**: Use `url_launcher` with `LaunchMode.platformDefault`
+- **Toast feedback**: Call `CommonMethods().showSuccessToast()` or `showDangerToast()`
+- **Access controller**: Use `HomeController.instance` (static getter) or `Get.find<HomeController>(tag: 'home_controller')` in views
+

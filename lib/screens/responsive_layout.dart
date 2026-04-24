@@ -7,22 +7,24 @@ class ResponsiveLayout extends StatelessWidget {
   Widget mobileView;
   Widget? tabView;
   Widget desktopView;
+
   ResponsiveLayout({
     required this.mobileView,
     this.tabView,
     required this.desktopView,
-    super.key});
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         if (sizingInformation.deviceScreenType == DeviceScreenType.mobile) {
-          return mobileView;
-        } else if(sizingInformation.deviceScreenType == DeviceScreenType.tablet) {
-          return tabView ?? mobileView;
+          return SelectionArea(child: mobileView);
+        } else if (sizingInformation.deviceScreenType == DeviceScreenType.tablet) {
+          return SelectionArea(child: tabView ?? mobileView);
         }
-        return desktopView;
+        return SelectionArea(child: desktopView);
       },
     );
   }

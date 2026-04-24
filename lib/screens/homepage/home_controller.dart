@@ -1,63 +1,100 @@
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
+import 'package:emailjs/emailjs.dart' as emailjs;
 import 'package:portfolio/screens/homepage/about_view.dart';
+import 'package:portfolio/screens/homepage/contact_view.dart';
 import 'package:portfolio/screens/homepage/portfolio_view.dart';
 import 'package:portfolio/screens/homepage/resume_view.dart';
-import 'package:emailjs/emailjs.dart' as emailjs;
+import 'package:portfolio/utils/common_methods.dart';
 import 'package:portfolio/utils/environment.dart';
 
-import '../../utils/common_methods.dart';
-import 'contact_view.dart';
-
 class HomeController extends GetxController {
-  RxInt selectedTabIndex = 0.obs;
-  RxBool loading = false.obs;
-  RxString selectedTabName = "About Me".obs;
-  ScrollController scrollController = ScrollController();
-  Rx<TextEditingController> emailController = TextEditingController().obs;
-  Rx<TextEditingController> nameController = TextEditingController().obs;
-  Rx<TextEditingController> messageController = TextEditingController().obs;
-  RxBool isExpanded = false.obs;
-  final formKey = GlobalKey<FormState>();
-  // MapController mapController = MapController(
-  //   initPosition: GeoPoint(latitude: 28.6139, longitude: 77.2088),
-  //   areaLimit: BoundingBox(
-  //     east: 10.4922941,
-  //     north: 47.8084648,
-  //     south: 45.817995,
-  //     west:  5.9559113,
-  //   ),
-  // );
+  // Observables
+  final RxInt selectedTabIndex = 0.obs;
+  final RxBool loading = false.obs;
+  final RxBool isExpanded = false.obs;
 
-  toggleExpanded() => isExpanded.value = !isExpanded.value;
+  // Controllers
+  late final ScrollController scrollController;
+  late final Rx<TextEditingController> emailController;
+  late final Rx<TextEditingController> nameController;
+  late final Rx<TextEditingController> messageController;
+  late final GlobalKey<FormState> formKey;
 
-  onSelectTab(int index) {
-    selectedTabIndex.value = index;
+  // Instance
+  static HomeController get instance => Get.find(tag: 'home_controller');
+
+  @override
+  void onInit() {
+    super.onInit();
+    _initializeControllers();
+    _initializeEmailJS();
   }
 
-  getTabView() {
-    switch (selectedTabIndex.value) {
-      case 0: return const AboutView();
-      case 1: return const ResumeView();
-      case 2: return const PortfolioView();
-      case 3: return const ContactView();
-      default: return const AboutView();
+  /// Initialize all text editing controllers
+  void _initializeControllers() {
+    scrollController = ScrollController();
+    emailController = TextEditingController().obs;
+    nameController = TextEditingController().obs;
+    messageController = TextEditingController().obs;
+    formKey = GlobalKey<FormState>();
+  }
+
+  /// Initialize EmailJS service with error handling
+  void _initializeEmailJS() {
+    try {
+      emailjs.init(
+        emailjs.Options(
+          publicKey: Environment.publicKey,
+          privateKey: Environment.privateKey,
+          limitRate: const emailjs.LimitRate(
+            id: 'web-app',
+            throttle: 10000,
+          ),
+        )
+      );
+    } catch (e) {
+      debugPrint('EmailJS initialization error: $e');
     }
   }
 
+  /// Toggle expanded state for sidebar
+  void toggleExpanded() => isExpanded.value = !isExpanded.value;
+
+  /// Select tab by index
+  void onSelectTab(int index) {
+    selectedTabIndex.value = index;
+  }
+
+  /// Get the corresponding tab view
+  Widget getTabView() {
+    switch (selectedTabIndex.value) {
+      case 0:
+        return const AboutView();
+      case 1:
+        return const ResumeView();
+      case 2:
+        return const PortfolioView();
+      case 3:
+        return const ContactView();
+      default:
+        return const AboutView();
+    }
+  }
+
+  /// Send email via EmailJS
   Future<bool> sendEmail() async {
     try {
       loading.value = true;
+
       await emailjs.send(
         Environment.serviceId,
         Environment.templateId,
         {
-          'to_name': nameController.value.text.trim().toString(),
-          'user_email': emailController.value.text.trim().toString(),
+          'to_name': nameController.value.text.trim(),
+          'user_email': emailController.value.text.trim(),
           'reply_to': "rchauhan439@gmail.com",
-          'message': messageController.value.text.trim().toString()
+          'message': messageController.value.text.trim(),
         },
         emailjs.Options(
           publicKey: Environment.publicKey,
@@ -68,18 +105,50 @@ class HomeController extends GetxController {
           ),
         ),
       );
-      print('SUCCESS!');
+
       CommonMethods().showSuccessToast("Message Sent!");
-      loading.value = false;
+      _clearForm();
       return true;
     } catch (error) {
       CommonMethods().showDangerToast("Something went wrong!");
-      loading.value = false;
+      debugPrint('Email sending error: $error');
       if (error is emailjs.EmailJSResponseStatus) {
-        print('ERROR... ${error.status}: ${error.text}');
+        debugPrint('EmailJS Error: ${error.status}: ${error.text}');
       }
-      print(error.toString());
       return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /// Clear form fields
+  void _clearForm() {
+    nameController.value.clear();
+    emailController.value.clear();
+    messageController.value.clear();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    emailController.value.dispose();
+    nameController.value.dispose();
+    messageController.value.dispose();
+    super.onClose();
+  }
+
+  String getTabName() {
+    switch (selectedTabIndex.value) {
+      case 0:
+        return "About Me";
+      case 1:
+        return "Resume";
+      case 2:
+        return "Portfolio";
+      case 3:
+        return "Contact";
+      default:
+        return "About Me";
     }
   }
 }
