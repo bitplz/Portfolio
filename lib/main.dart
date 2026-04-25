@@ -10,23 +10,15 @@ import 'package:portfolio/utils/environment.dart';
 import 'package:portfolio/utils/text_theme.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Firebase
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    debugPrint('Firebase initialization error: $e');
-  }
-
-  // Initialize GetX controllers as singletons
+  // Load environment variables before any Firebase config is accessed
+  await dotenv.load();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  // Initialize the singleton PortfolioDataController once (per earlier changes)
   Get.put(PortfolioDataController(), tag: 'portfolio_data_controller', permanent: true);
-  // Get.put(AnalyticServices(), tag: 'analytics');
-  await dotenv.load(fileName: Environment.envFile);
-  // analyticServices.logEvent(eventName: "App initialized");
   runApp(const App());
 }
 

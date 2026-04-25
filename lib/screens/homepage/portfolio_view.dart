@@ -16,9 +16,10 @@ class PortfolioView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return ResponsiveLayout(
-      mobileView: _buildMobileLayout(context),
-      desktopView: _buildDesktopLayout(context),
+    return Obx(() => ResponsiveLayout(
+        mobileView: portfolioDataController.personalDetailsLoading.value? const Loader(): _buildMobileLayout(context),
+        desktopView: portfolioDataController.personalDetailsLoading.value? const Loader(): _buildDesktopLayout(context),
+      ),
     );
   }
 
