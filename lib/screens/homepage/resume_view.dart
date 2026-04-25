@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:portfolio/controllers/controllers.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
-import 'package:portfolio/utils/common_strings.dart';
-import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
-import 'package:get/get.dart';
 import 'package:portfolio/utils/common_widgets.dart';
+import 'package:get/get.dart';
 
 class ResumeView extends StatelessWidget {
   const ResumeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Ensure portfolio controller is available
-    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
-
-    return ResponsiveLayout(
-      mobileView: _buildMobileLayout(context),
-      desktopView: _buildDesktopLayout(context),
+    return Obx(() => ResponsiveLayout(
+        mobileView: portfolioDataController.personalDetailsLoading.value? const Loader(): _buildMobileLayout(context),
+        desktopView: portfolioDataController.personalDetailsLoading.value? const Loader(): _buildDesktopLayout(context),
+      ),
     );
   }
 
@@ -31,36 +28,12 @@ class ResumeView extends StatelessWidget {
         children: [
           _buildSectionHeader(context, "Education", Icons.school_outlined),
           Obx(() {
-            final controller = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
-            final data = controller.educationList.value
-                .map((e) => {
-                      'title': e.title,
-                      'time': e.time,
-                      'desc': e.desc,
-                    })
-                .toList()
-                .reversed
-                .toList();
-            if (data.isEmpty) {
-              return TimeLineListView(title: 'Education', data: CommonStrings.educationMap.reversed.toList());
-            }
-            return TimeLineListView(title: 'Education', data: data);
+            return TimeLineListView(title: 'Education', data: portfolioDataController.educationList.value);
           }),
           const SizedBox(height: 20),
           _buildSectionHeader(context, "Experience", Icons.school_outlined),
           Obx(() {
-            final controller = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
-            final data = controller.experienceList.value
-                .map((e) => {
-                      'title': e.title,
-                      'time': e.time,
-                      'desc': e.desc,
-                    })
-                .toList();
-            if (data.isEmpty) {
-              return TimeLineListView(title: 'Experience', data: CommonStrings.experienceMap);
-            }
-            return TimeLineListView(title: 'Experience', data: data);
+            return TimeLineListView(title: 'Experience', data: portfolioDataController.experienceList.value);
           }),
           const SizedBox(height: 40),
           _buildSkillsSection(context),
@@ -79,13 +52,13 @@ class ResumeView extends StatelessWidget {
           _buildDesktopEducationHeader(context),
           TimeLineListView(
             title: "Education",
-            data: CommonStrings.educationMap.reversed.toList(),
+            data: portfolioDataController.educationList.value,
           ),
           const SizedBox(height: 20),
           _buildSectionHeader(context, "Experience", Icons.school_outlined),
           TimeLineListView(
             title: "Experience",
-            data: CommonStrings.experienceMap,
+            data: portfolioDataController.experienceList.value,
           ),
           const SizedBox(height: 40),
           _buildSkillsSection(context),

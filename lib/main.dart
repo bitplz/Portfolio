@@ -4,9 +4,8 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:portfolio/firebase_options.dart';
 import 'package:portfolio/screens/homepage/home_view.dart';
-import 'package:portfolio/services/analytics_services.dart';
+import 'package:portfolio/controllers/portfolio_data_controller.dart';
 import 'package:portfolio/utils/app_colors.dart';
-import 'package:portfolio/utils/controllers.dart';
 import 'package:portfolio/utils/environment.dart';
 import 'package:portfolio/utils/text_theme.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -23,6 +22,8 @@ void main() async {
     debugPrint('Firebase initialization error: $e');
   }
 
+  // Initialize GetX controllers as singletons
+  Get.put(PortfolioDataController(), tag: 'portfolio_data_controller', permanent: true);
   // Get.put(AnalyticServices(), tag: 'analytics');
   await dotenv.load(fileName: Environment.envFile);
   // analyticServices.logEvent(eventName: "App initialized");

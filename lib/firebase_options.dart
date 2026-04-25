@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -16,50 +17,17 @@ import 'package:flutter/foundation.dart'
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
-    }
+    // Ensure .env is loaded before accessing values
+    // In main.dart you should call: await dotenv.load();
+    return FirebaseOptions(
+      apiKey: dotenv.get('FIREBASE_API_KEY', fallback: ''),
+      appId: dotenv.get('FIREBASE_APP_ID', fallback: ''),
+      messagingSenderId: dotenv.get('FIREBASE_MESSAGING_SENDER_ID', fallback: ''),
+      projectId: dotenv.get('FIREBASE_PROJECT_ID', fallback: ''),
+      authDomain: dotenv.get('FIREBASE_AUTH_DOMAIN', fallback: ''),
+      storageBucket: dotenv.get('FIREBASE_STORAGE_BUCKET', fallback: ''),
+      measurementId: dotenv.get('FIREBASE_MEASUREMENT_ID', fallback: ''),
+    );
   }
-
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCGYtrq0vX4zoFBxAt4FSL5Gm_K_UGAsts',
-    appId: '1:38420179813:web:17068d7b3580006e908f8c',
-    messagingSenderId: '38420179813',
-    projectId: 'portfolio-d4714',
-    authDomain: 'portfolio-d4714.firebaseapp.com',
-    storageBucket: 'portfolio-d4714.appspot.com',
-    measurementId: 'G-Y2RRM8RT0Q',
-  );
 
 }

@@ -4,11 +4,12 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:portfolio/controllers/controllers.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
 import 'package:portfolio/utils/common_widgets.dart';
-import 'package:portfolio/screens/homepage/home_controller.dart';
-import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
+import 'package:portfolio/controllers/home_controller.dart';
+import 'package:portfolio/controllers/portfolio_data_controller.dart';
 import 'package:get/get.dart';
 
 class ContactView extends StatelessWidget {
@@ -100,9 +101,6 @@ class _ContactFormSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure portfolio controller is available for contact details
-    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
-    final portfolioController = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +112,7 @@ class _ContactFormSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Obx(() {
-          final details = portfolioController.personalDetails.value;
+          final details = portfolioDataController.personalDetails.value;
           if (details.email.isEmpty && details.mobile.isEmpty) {
             return const SizedBox.shrink();
           }

@@ -11,18 +11,17 @@ class FirestoreService {
   static const String experienceCollection = 'experience';
   static const String projectsCollection = 'projects';
   static const String personalDetailsCollection = 'personalDetails';
-  static const String personalDetailsDoc = 'details'; // Document ID for personal details
+  static const String personalDetailsDoc = 'details';
 
   /// Get education history from Firestore
-  Future<List<Education>> getEducation() async {
+  Future<List<Experience>> getEducation() async {
     try {
       final querySnapshot = await _firestore
           .collection(educationCollection)
-          .orderBy('order', descending: false) // Optional: if you add order field
           .get();
 
       return querySnapshot.docs
-          .map((doc) => Education.fromMap(doc.data()))
+          .map((doc) => Experience.fromMap(doc.data()))
           .toList();
     } catch (e) {
       debugPrint('Error fetching education: $e');
@@ -35,7 +34,6 @@ class FirestoreService {
     try {
       final querySnapshot = await _firestore
           .collection(experienceCollection)
-          .orderBy('order', descending: false) // Optional: if you add order field
           .get();
 
       return querySnapshot.docs
@@ -52,7 +50,6 @@ class FirestoreService {
     try {
       final querySnapshot = await _firestore
           .collection(projectsCollection)
-          .orderBy('order', descending: false) // Optional: if you add order field
           .get();
 
       return querySnapshot.docs
@@ -112,7 +109,7 @@ class FirestoreService {
   }
 
   /// Add or update a single education entry
-  Future<bool> addEducation(Education education) async {
+  Future<bool> addEducation(Experience education) async {
     try {
       await _firestore
           .collection(educationCollection)
@@ -165,14 +162,13 @@ class FirestoreService {
   }
 
   /// Stream education data for real-time updates
-  Stream<List<Education>> educationStream() {
+  Stream<List<Experience>> educationStream() {
     return _firestore
         .collection(educationCollection)
-        .orderBy('order', descending: false)
         .snapshots()
         .map((querySnapshot) {
       return querySnapshot.docs
-          .map((doc) => Education.fromMap(doc.data()))
+          .map((doc) => Experience.fromMap(doc.data()))
           .toList();
     }).handleError((error) {
       debugPrint('Error in education stream: $error');
@@ -184,7 +180,6 @@ class FirestoreService {
   Stream<List<Experience>> experienceStream() {
     return _firestore
         .collection(experienceCollection)
-        .orderBy('order', descending: false)
         .snapshots()
         .map((querySnapshot) {
       return querySnapshot.docs
@@ -200,7 +195,6 @@ class FirestoreService {
   Stream<List<Project>> projectsStream() {
     return _firestore
         .collection(projectsCollection)
-        .orderBy('order', descending: false)
         .snapshots()
         .map((querySnapshot) {
       return querySnapshot.docs

@@ -1,31 +1,3 @@
-// Data models for portfolio content
-class Education {
-  final String title;
-  final String time;
-  final String desc;
-
-  Education({
-    required this.title,
-    required this.time,
-    required this.desc,
-  });
-
-  factory Education.fromMap(Map<String, dynamic> map) {
-    return Education(
-      title: map['title'] as String,
-      time: map['time'] as String,
-      desc: map['desc'] as String,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'time': time,
-      'desc': desc,
-    };
-  }
-}
 
 class Experience {
   final String title;
@@ -56,7 +28,7 @@ class Experience {
 }
 
 class Project {
-  final String id; // Document ID from Firestore
+  final String id;
   final String title;
   final String type;
   final String coverImage;

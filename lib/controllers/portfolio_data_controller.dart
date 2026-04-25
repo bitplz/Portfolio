@@ -8,7 +8,7 @@ class PortfolioDataController extends GetxController {
   final FirestoreService _firestoreService = FirestoreService();
 
   // Observables for portfolio data
-  final Rx<List<Education>> educationList = Rx([]);
+  final Rx<List<Experience>> educationList = Rx([]);
   final Rx<List<Experience>> experienceList = Rx([]);
   final Rx<List<Project>> projectList = Rx([]);
   final Rx<PersonalDetails> personalDetails = Rx(
@@ -50,6 +50,7 @@ class PortfolioDataController extends GetxController {
       educationLoading.value = true;
       final data = await _firestoreService.getEducation();
       educationList.value = data;
+      print('educationList updated: ${educationList.value.length} items');
     } catch (e) {
       debugPrint('Error fetching education: $e');
     } finally {
@@ -97,7 +98,7 @@ class PortfolioDataController extends GetxController {
   }
 
   /// Get education data with fallback to empty state
-  List<Education> getEducationData() {
+  List<Experience> getEducationData() {
     return educationList.value;
   }
 

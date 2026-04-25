@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
+import 'package:portfolio/controllers/controllers.dart';
+import 'package:portfolio/controllers/portfolio_data_controller.dart';
+import 'package:portfolio/models/portfolio_models.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
-import 'package:portfolio/utils/common_strings.dart';
 import 'package:portfolio/utils/common_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,8 +15,6 @@ class PortfolioView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure portfolio controller is initialized
-    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
 
     return ResponsiveLayout(
       mobileView: _buildMobileLayout(context),
@@ -65,37 +64,20 @@ class PortfolioView extends StatelessWidget {
   }
 
   List<Widget> _buildPortfolioCards(BuildContext context) {
-    final controller = Get.find<PortfolioDataController>(tag: 'portfolio_data_controller');
-    final projects = controller.projectList.value;
-    if (projects.isEmpty) {
-      // Fallback to legacy list
-      final portfolios = [
-        CommonStrings.remoteCursorPackage,
-        CommonStrings.portfolioApp,
-        CommonStrings.workAnywhereApp,
-        CommonStrings.talentAnywhereApp,
-        CommonStrings.darknetDiariesApp,
-        CommonStrings.neoMartApp,
-        CommonStrings.libriVoxApp,
-      ];
-      return portfolios.map((p) => _PortfolioCard(portfolioInfo: p)).toList();
-    }
+    final projects = portfolioDataController.projectList.value;
+      if (projects.isEmpty) {
+        // No data yet – return empty list (or you could show a placeholder)
+        return [];
+      }
     return projects
-        .map((proj) => _PortfolioCard(portfolioInfo: {
-              'title': proj.title,
-              'type': proj.type,
-              'coverImage': proj.coverImage,
-              'iconUrl': proj.iconUrl,
-              'playstoreUrl': proj.playstoreUrl,
-              'about': proj.about,
-            }))
+        .map((proj) => _PortfolioCard(portfolioInfo: proj))
         .toList();
   }
 }
 
 /// Portfolio card widget
 class _PortfolioCard extends StatelessWidget {
-  final Map<String, String> portfolioInfo;
+  final Project portfolioInfo;
 
   const _PortfolioCard({required this.portfolioInfo});
 
@@ -112,7 +94,7 @@ class _PortfolioCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _PortfolioImage(
-          image: portfolioInfo['coverImage']!,
+          image: portfolioInfo.coverImage,
           maxWidth: 350,
           onTap: () => _showPortfolioDialog(context),
         ),
@@ -120,8 +102,8 @@ class _PortfolioCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: _PortfolioInfo(
-            title: portfolioInfo['title']!,
-            type: portfolioInfo['type']!,
+            title: portfolioInfo.title,
+            type: portfolioInfo.type,
           ),
         ),
       ],
@@ -133,7 +115,7 @@ class _PortfolioCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _PortfolioImage(
-          image: portfolioInfo['coverImage']!,
+          image: portfolioInfo.coverImage,
           maxWidth: 250,
           maxHeight: 200,
           onTap: () => _showPortfolioDialog(context),
@@ -142,8 +124,8 @@ class _PortfolioCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: _PortfolioInfo(
-            title: portfolioInfo['title']!,
-            type: portfolioInfo['type']!,
+            title: portfolioInfo.title,
+            type: portfolioInfo.type,
           ),
         ),
       ],
@@ -230,7 +212,7 @@ class _PortfolioInfo extends StatelessWidget {
 
 /// Portfolio dialog widget
 class _PortfolioDialog extends StatelessWidget {
-  final Map<String, String> portfolioInfo;
+  final Project portfolioInfo;
 
   const _PortfolioDialog({required this.portfolioInfo});
 
@@ -317,7 +299,7 @@ class _PortfolioDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text(
-                  portfolioInfo['title']!,
+                  portfolioInfo.title,
                   maxLines: 2,
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
@@ -356,14 +338,14 @@ class _PortfolioDialog extends StatelessWidget {
               if (!isMobile)
                 Flexible(
                   child: Text(
-                    portfolioInfo['title']!,
+                    portfolioInfo.title,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                 ),
               if (!isMobile) const SizedBox(height: 20),
               Flexible(
                 child: Text(
-                  portfolioInfo['about']!,
+                  portfolioInfo.about,
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.start,
                 ),
@@ -376,17 +358,17 @@ class _PortfolioDialog extends StatelessWidget {
   }
 
   Widget _buildStoreButton(BuildContext context, {required bool isMobile}) {
-    if (portfolioInfo['playstoreUrl']!.isEmpty) {
+    if (portfolioInfo.playstoreUrl.isEmpty) {
       return const SizedBox();
     }
 
-    final isPubDev = portfolioInfo['playstoreUrl']!.contains('pub.dev');
+    final isPubDev = portfolioInfo.playstoreUrl.contains('pub.dev');
     final buttonText = isPubDev ? "pub.dev" : "Play Store";
     final svgPath = isPubDev ? 'assets/svg/dart.svg' : 'assets/svg/playstore.svg';
 
     return InkWell(
       onTap: () async {
-        if (!await launchUrl(Uri.parse(portfolioInfo['playstoreUrl']!))) {
+        if (!await launchUrl(Uri.parse(portfolioInfo.playstoreUrl))) {
           throw Exception("could not launch url");
         }
       },
@@ -430,7 +412,7 @@ class _PortfolioDialog extends StatelessWidget {
 
 /// Portfolio icon widget
 class _PortfolioIcon extends StatelessWidget {
-  final Map<String, String> portfolioInfo;
+  final Project portfolioInfo;
   final double size;
 
   const _PortfolioIcon({
@@ -445,11 +427,11 @@ class _PortfolioIcon extends StatelessWidget {
       padding: EdgeInsets.zero,
       height: size,
       width: size,
-      child: portfolioInfo['iconUrl']! == ""
+      child: portfolioInfo.iconUrl == ""
           ? Image.asset('assets/images/app-icon.jpg', fit: BoxFit.cover)
-          : portfolioInfo['iconUrl']!.startsWith('http')
-              ? Image.network(portfolioInfo['iconUrl']!, fit: BoxFit.cover)
-              : Image.asset(portfolioInfo['iconUrl']!, fit: BoxFit.cover),
+          : portfolioInfo.iconUrl.startsWith('http')
+              ? Image.network(portfolioInfo.iconUrl, fit: BoxFit.cover)
+              : Image.asset(portfolioInfo.iconUrl, fit: BoxFit.cover),
     );
   }
 }

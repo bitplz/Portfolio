@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:portfolio/models/portfolio_models.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/controllers.dart';
 import 'package:timeline_tile/timeline_tile.dart';
@@ -130,7 +131,7 @@ class AvatarContainer extends StatelessWidget {
 }
 
 class TimeLineListView extends StatelessWidget {
-  List<Map<String, String>> data;
+  List<Experience> data;
   String? title;
   TimeLineListView({
     required this.data,
@@ -201,14 +202,14 @@ class TimeLineListView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(data[index - 1]['title']!, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    Text(data[index - 1].title, style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppColors.white,
                     ),),
                     const SizedBox(height: 8,),
-                    Text(data[index - 1]['time']!, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    Text(data[index - 1].time, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.selectionColor
                     ),),
-                    Text(data[index - 1]['desc']!, style: Theme.of(context).textTheme.bodyLarge),
+                    Text(data[index - 1].desc, style: Theme.of(context).textTheme.bodyLarge),
                   ],
                 ),
               )
@@ -248,14 +249,14 @@ class TimeLineListView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(data[index - 1]['title']!, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    Text(data[index - 1].title, style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppColors.white,
                     ),),
                     const SizedBox(height: 8,),
-                    Text(data[index - 1]['time']!, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    Text(data[index - 1].time, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.selectionColor
                     ),),
-                    Text(data[index - 1]['desc']!, style: Theme.of(context).textTheme.bodyLarge),
+                    Text(data[index - 1].desc, style: Theme.of(context).textTheme.bodyLarge),
                   ],
                 ),
               )
@@ -325,3 +326,21 @@ Widget downloadCVButton() {
     ),
   );
 }
+
+class Loader extends StatelessWidget {
+  const Loader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: CupertinoActivityIndicator(
+          animating: true,
+          color: AppColors.selectionColor,
+        ),
+      ),
+    );
+  }
+}
+

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
-import 'package:portfolio/main.dart';
-import 'package:portfolio/screens/homepage/home_controller.dart';
-import 'package:portfolio/screens/homepage/portfolio_data_controller.dart';
+import 'package:portfolio/controllers/controllers.dart';
+import 'package:portfolio/controllers/home_controller.dart';
+import 'package:portfolio/controllers/portfolio_data_controller.dart';
 import 'package:portfolio/screens/responsive_layout.dart';
 import 'package:portfolio/utils/app_colors.dart';
-import 'package:portfolio/utils/common_strings.dart';
 import 'package:portfolio/utils/common_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,7 +15,6 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final homeController = Get.put(HomeController(), tag: 'home_controller');
-    Get.put(PortfolioDataController(), tag: 'portfolio_data_controller');
     final maxWidth = MediaQuery.of(context).size.width;
     final double padding =
         (maxWidth > 1200) ? (maxWidth - 1200) / 2 : 10;
@@ -441,40 +439,47 @@ class _SideBar extends StatelessWidget {
   Widget _buildContactInfo(BuildContext context, {required bool isMobile}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isMobile) const SizedBox() else const Divider(color: AppColors.borderColor, thickness: 1),
-          _CustomListTile(
-            icon: Icons.mail_outline_rounded,
-            title: "EMAIL",
-            subtitle: CommonStrings.myDetails['email'],
-            onTap: () {
-              launchUrl(
-                Uri(scheme: "mailto", path: CommonStrings.myDetails['email']),
-                mode: LaunchMode.platformDefault,
-              );
-            },
-          ),
-          _CustomListTile(
-            icon: Icons.phone_android,
-            title: "PHONE",
-            subtitle: CommonStrings.myDetails['mobile'],
-            onTap: () {
-              launchUrl(
-                Uri(scheme: "tel", path: CommonStrings.myDetails['mobile']),
-                mode: LaunchMode.platformDefault,
-              );
-            },
-          ),
-          _CustomListTile(
-            icon: Icons.location_on_outlined,
-            title: "LOCATION",
-            subtitle: CommonStrings.myDetails['address'],
-          ),
-        ],
-      ),
+      child: Obx(() {
+        final details = portfolioDataController.personalDetails.value;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!isMobile) const SizedBox() else const Divider(color: AppColors.borderColor, thickness: 1),
+            _CustomListTile(
+              icon: Icons.mail_outline_rounded,
+              title: "EMAIL",
+              subtitle: details.email.isNotEmpty ? details.email : "N/A",
+              onTap: () {
+                if (details.email.isNotEmpty) {
+                  launchUrl(
+                    Uri(scheme: "mailto", path: details.email),
+                    mode: LaunchMode.platformDefault,
+                  );
+                }
+              },
+            ),
+            _CustomListTile(
+              icon: Icons.phone_android,
+              title: "PHONE",
+              subtitle: details.mobile.isNotEmpty ? details.mobile : "N/A",
+              onTap: () {
+                if (details.mobile.isNotEmpty) {
+                  launchUrl(
+                    Uri(scheme: "tel", path: details.mobile),
+                    mode: LaunchMode.platformDefault,
+                  );
+                }
+              },
+            ),
+            _CustomListTile(
+              icon: Icons.location_on_outlined,
+              title: "LOCATION",
+              subtitle: details.address.isNotEmpty ? details.address : "N/A",
+            ),
+          ],
+        );
+      }),
     );
   }
 }
@@ -654,4 +659,3 @@ class _CustomListTile extends StatelessWidget {
     );
   }
 }
-
